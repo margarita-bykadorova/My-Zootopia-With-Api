@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>My Animal Repository</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --gray-darker: #444444;
+        --gray-dark: #696969;
+        --gray: #999999;
+        --gray-light: #cccccc;
+        --gray-lighter: #ececec;
+      }
+
+      /* sane defaults */
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html { background-color: #ffe9e9; }
+
+      body {
+        font-family: 'Roboto','Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 1.5;
+        padding: 1rem;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: normal;
+      }
+
+      h2.subheading {
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: var(--gray-darker);
+        margin-top: -0.3rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.5px;
+      }
+
+      .cards {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .cards__item {
+        background-color: #fff;
+        border-radius: 0.25rem;
+        box-shadow: 0 20px 40px -14px rgba(0,0,0,0.25);
+        overflow: hidden;
+        padding: 1rem;
+        margin: 2rem 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* smooth both ways */
+        will-change: transform, box-shadow;
+      }
+
+      .cards__item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 25px 45px -15px rgba(0,0,0,0.3);
+      }
+
+      .card__title {
+        color: var(--gray-dark);
+        font-size: 1.25rem;
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-align: center;
+        margin: 1rem;
+      }
+
+      .card__text {
+        font-size: 0.95rem;
+        line-height: 2;
+        margin-bottom: 1.25rem;
+      }
+
+      .animal-info {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .animal-info__item {
+        background-color: var(--gray-lighter);
+        border-radius: 6px;
+        padding: 0.4rem 0.6rem;
+        margin: 0.3rem 0;
+        line-height: 1.6;
+      }
+
+      .animal-info__item strong {
+        color: var(--gray-darker);
+        font-weight: 500;
+        margin-right: 0.3rem;
+      }
+
+      .animal-info__item:hover {
+        background-color: var(--gray-light);
+      }
+
+      /* respectful motion */
+      @media (prefers-reduced-motion: reduce) {
+        .cards__item { transition: none; transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>My Animal Repository</h1>
+    <ul class="cards">
+      __REPLACE_ANIMALS_INFO__
+    </ul>
+  </body>
+</html>
