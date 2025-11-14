@@ -6,19 +6,30 @@ from typing import Any, Dict, List
 TEMPLATE_FILE = "animals_template.html"
 OUTPUT_FILE = "animals.html"
 PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
-REQUEST_URL = "https://api.api-ninjas.com/v1/animals?name=fox"
+REQUEST_URL = "https://api.api-ninjas.com/v1/animals?name="
 API_KEY = "my_key"
-headers = {"X-Api-Key": API_KEY}
+HEADERS = {"X-Api-Key": API_KEY}
 
 
 def fetch_data():
     """Fetch animal data from API.
     Return JSON file"""
-    res = requests.get(REQUEST_URL, headers=headers)
+    animal = get_animal_name()
+    res = requests.get(REQUEST_URL + animal, headers=HEADERS)
     if res.ok:
         data = res.json()
         return data
     return None
+
+
+def get_animal_name():
+    """Prompt the user to choose an animal name."""
+    while True:
+        try:
+            animal = str(input("Enter a name of an animal: ").strip())
+            return animal
+        except ValueError:
+            print("Please enter a correct value.")
 
 
 def load_data(file_path: str) -> Any:
