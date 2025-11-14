@@ -1,11 +1,24 @@
+import requests
 import json
 import html
 from typing import Any, Dict, List
 
-DATA_FILE = "animals_data.json"
 TEMPLATE_FILE = "animals_template.html"
 OUTPUT_FILE = "animals.html"
 PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
+REQUEST_URL = "https://api.api-ninjas.com/v1/animals?name=fox"
+API_KEY = "my_key"
+headers = {"X-Api-Key": API_KEY}
+
+
+def fetch_data():
+    """Fetch animal data from API.
+    Return JSON file"""
+    res = requests.get(REQUEST_URL, headers=headers)
+    if res.ok:
+        data = res.json()
+        return data
+    return None
 
 
 def load_data(file_path: str) -> Any:
