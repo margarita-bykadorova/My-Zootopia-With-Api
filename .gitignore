@@ -1,1 +1,18 @@
 .env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environments
+.venv/
+venv/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Generated file
+animals.html

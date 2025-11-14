@@ -1,5 +1,8 @@
+"""Main script for generating an HTML page from animal data returned by data_fetcher."""
+
 import html
 from typing import Any, Dict, List
+
 import data_fetcher
 
 
@@ -22,7 +25,7 @@ def get_animal_name():
 
 
 def esc(value: Any) -> str | None:
-    """HTML-escape a value if it exists."""
+    """Return HTML-escaped string of value, or None if value is None."""
     return html.escape(str(value)) if value is not None else None
 
 
@@ -50,7 +53,7 @@ def serialize_animal(animal: Dict[str, Any]) -> str:
     i = " "
 
     parts: List[str] = [
-        f"<li class='cards__item'>",
+        "<li class='cards__item'>",
         f"{i * 2}<div class='card__title'><strong>{name}</strong></div>",
         f"{i * 2}<div class='card__text'>",
         f"{i * 4}<ul class='animal-info'>",
@@ -85,7 +88,7 @@ def serialize_animal(animal: Dict[str, Any]) -> str:
 
 
 def create_new_html(cards_html: str, animal: str, count: int) -> None:
-    """Replace the placeholder and write the output HTML, with h2 subheading."""
+    """Insert cards_html into template and write animals.html with heading."""
 
     with open(TEMPLATE_FILE, "r", encoding="utf-8") as template:
         tpl = template.read()
@@ -111,7 +114,7 @@ def main() -> None:
 
     if data is None:
         cards_html = (
-            f"<h2 class='subheading'>"
+            f"<h2 class='subheading empty-message'>"
             f"Could not fetch data for “{esc(animal)}”.</h2>"
         )
         create_new_html(cards_html, animal, 0)

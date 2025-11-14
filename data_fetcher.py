@@ -1,19 +1,31 @@
-import requests
+"""
+Utility module responsible for fetching animal data from the
+API Ninjas Animals API. Provides a single function `fetch_data`
+that performs an HTTP request and returns parsed JSON results.
+"""
+
 import os
+
+import requests
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
 REQUEST_URL = "https://api.api-ninjas.com/v1/animals"
-API_KEY = os.getenv('API_KEY')
+API_KEY = os.getenv("API_KEY")
 HEADERS = {"X-Api-Key": API_KEY}
 
 
 def fetch_data(animal: str):
+    """Fetch animal data from the API by name.
+
+    Args:
+        animal: The name to search (e.g., "Fox").
+
+    Returns:
+        A list of animals (each a dict) on success, or None on error.
     """
-      Fetches the animal data for the animal 'animal_name'.
-      Returns: a list of animals, each animal is a dictionary
-      """
     try:
         res = requests.get(
             REQUEST_URL,
