@@ -1,34 +1,11 @@
-import requests
 import html
 from typing import Any, Dict, List
+import data_fetcher
 
 
 TEMPLATE_FILE = "animals_template.html"
 OUTPUT_FILE = "animals.html"
 PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
-REQUEST_URL = "https://api.api-ninjas.com/v1/animals"
-API_KEY = "my_key"
-HEADERS = {"X-Api-Key": API_KEY}
-
-
-def fetch_data(animal: str):
-    """Fetch animal data from API. Returns a list or None."""
-
-    try:
-        res = requests.get(
-            REQUEST_URL,
-            headers=HEADERS,
-            params={"name": animal},
-            timeout=10,
-        )
-        if not res.ok:
-            return None
-        try:
-            return res.json()
-        except ValueError:
-            return None
-    except requests.RequestException:
-        return None
 
 
 def get_animal_name():
@@ -130,7 +107,7 @@ def main() -> None:
     """Entry point: prompt for an animal name, render the HTML."""
 
     animal = get_animal_name()
-    data = fetch_data(animal)
+    data = data_fetcher.fetch_data(animal)
 
     if data is None:
         cards_html = (
