@@ -1,67 +1,52 @@
 import requests
-import json
 import html
 from typing import Any, Dict, List
+
 
 TEMPLATE_FILE = "animals_template.html"
 OUTPUT_FILE = "animals.html"
 PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
-REQUEST_URL = "https://api.api-ninjas.com/v1/animals?name="
+REQUEST_URL = "https://api.api-ninjas.com/v1/animals"
 API_KEY = "my_key"
 HEADERS = {"X-Api-Key": API_KEY}
 
 
-def fetch_data():
-    """Fetch animal data from API.
-    Return JSON file"""
-    animal = get_animal_name()
-    res = requests.get(REQUEST_URL + animal, headers=HEADERS)
-    if res.ok:
-        data = res.json()
-        return data
-    return None
+def fetch_data(animal: str):
+    """Fetch animal data from API. Returns a list or None."""
+
+    try:
+        res = requests.get(
+            REQUEST_URL,
+            headers=HEADERS,
+            params={"name": animal},
+            timeout=10,
+        )
+        if not res.ok:
+            return None
+        try:
+            return res.json()
+        except ValueError:
+            return None
+    except requests.RequestException:
+        return None
 
 
 def get_animal_name():
     """Prompt the user to choose an animal name."""
+
     while True:
-        try:
-            animal = str(input("Enter a name of an animal: ").strip())
+        animal = input("Enter a name of an animal: ").strip()
+        if not animal:
+            print("Please enter a non-empty name.")
+        elif not animal.replace(" ", "").isalpha():
+            print("Please enter only letters (e.g., Fox, Snow Leopard).")
+        else:
             return animal
-        except ValueError:
-            print("Please enter a correct value.")
-
-
-def load_data(file_path: str) -> Any:
-    """Loads a JSON file."""
-    with open(file_path, "r", encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def esc(value: Any) -> str | None:
     """HTML-escape a value if it exists."""
     return html.escape(str(value)) if value is not None else None
-
-
-def prompt_for_skin_type(skin_types: List[str], has_unknown: bool = False) -> str:
-    """Prompt the user to choose a skin_type from the displayed list.
-    Returns the chosen skin_type label (original casing), or 'Unknown'."""
-
-    print("Available skin types:")
-    for st in skin_types:
-        print(f" - {st}")
-    if has_unknown:
-        print(" - Unknown")
-
-    lookup = {st.lower(): st for st in skin_types}
-    if has_unknown:
-        lookup["unknown"] = "Unknown"
-
-    while True:
-        choice_raw = input("\nEnter a skin_type from the list above: ").strip().lower()
-        if choice_raw in lookup:
-            return lookup[choice_raw]
-        print("Not in the list. Please enter exactly one of the shown values.")
 
 
 def serialize_animal(animal: Dict[str, Any]) -> str:
@@ -111,7 +96,7 @@ def serialize_animal(animal: Dict[str, Any]) -> str:
                      f"<strong>Type:</strong> {animal_type}</li>")
     if distinctive_feature:
         parts.append(
-            f"{i * 6}<li class=\"animal-info__item\">"
+            f"{i * 6}<li class='animal-info__item'>"
             f"<strong>Distinctive feature:</strong> {distinctive_feature}</li>")
 
     parts.extend([
@@ -122,68 +107,7 @@ def serialize_animal(animal: Dict[str, Any]) -> str:
     return "\n".join(parts) + "\n"
 
 
-def collect_skin_types(data) -> list:
-    """Collect unique, non-empty skin_type values; keep first-seen order and casing."""
-
-    seen_lowercase = set()
-    skin_types = []
-
-    for animal in data:
-        characteristics = animal.get("characteristics", {})
-        skin_type = characteristics.get("skin_type")
-        if not skin_type:
-            continue
-
-        skin_type_str = str(skin_type).strip()
-        if not skin_type_str:
-            continue
-
-        skin_type_lower = skin_type_str.lower()
-        if skin_type_lower not in seen_lowercase:
-            seen_lowercase.add(skin_type_lower)
-            skin_types.append(skin_type_str)
-
-    return skin_types
-
-
-def filter_by_skin_type(data, chosen_skin: str) -> list:
-    """Filter animals by a chosen skin_type (case-insensitive)."""
-
-    filtered_animals = []
-    chosen_skin_lower = chosen_skin.strip().lower()
-
-    for animal in data:
-        characteristics = animal.get("characteristics", {})
-        skin_type = characteristics.get("skin_type")
-        if not skin_type:
-            continue
-
-        if str(skin_type).strip().lower() == chosen_skin_lower:
-            filtered_animals.append(animal)
-
-    return filtered_animals
-
-
-def collect_unknown_skin_type(data) -> list:
-    """Collect animals whose characteristics.skin_type is missing or empty."""
-
-    unknown = []
-    for animal in data:
-        characteristics = animal.get("characteristics", {})
-        skin_type = characteristics.get("skin_type")
-        if not skin_type or not str(skin_type).strip():
-            unknown.append(animal)
-    return unknown
-
-
-def select_animals_by_choice(data, chosen_label: str, unknown_animals: list) -> list:
-    """Select animals based on the chosen label, including 'Unknown'."""
-    if chosen_label == "Unknown":
-        return unknown_animals
-    return filter_by_skin_type(data, chosen_label)
-
-
-def create_new_html(cards_html: str, chosen_label: str, count: int) -> None:
+def create_new_html(cards_html: str, animal: str, count: int) -> None:
     """Replace the placeholder and write the output HTML, with h2 subheading."""
 
     with open(TEMPLATE_FILE, "r", encoding="utf-8") as template:
@@ -193,7 +117,7 @@ def create_new_html(cards_html: str, chosen_label: str, count: int) -> None:
     count_label = "animal" if count == 1 else "animals"
     heading_html = (
         "<h1>My Animal Repository</h1>\n"
-        f"<h2 class='subheading'>Skin type: {chosen_label} "
+        f"<h2 class='subheading'>Animal name: {esc(animal)} "
         f"({count} {count_label})</h2>"
     )
     html_out = html_out.replace("<h1>My Animal Repository</h1>", heading_html)
@@ -203,27 +127,31 @@ def create_new_html(cards_html: str, chosen_label: str, count: int) -> None:
 
 
 def main() -> None:
-    """Entry point: prompt for a skin_type, filter animals, render the HTML."""
+    """Entry point: prompt for an animal name, render the HTML."""
 
-    data = load_data(DATA_FILE)
-    skin_types = collect_skin_types(data)
-    unknown_animals = collect_unknown_skin_type(data)
+    animal = get_animal_name()
+    data = fetch_data(animal)
 
-    if not skin_types and not unknown_animals:
-        print("No skin types found in data.")
+    if data is None:
+        cards_html = (
+            f"<h2 class='subheading'>"
+            f"Could not fetch data for “{esc(animal)}”.</h2>"
+        )
+        create_new_html(cards_html, animal, 0)
         return
 
-    chosen_label = prompt_for_skin_type(skin_types, has_unknown=bool(unknown_animals))
-    filtered = select_animals_by_choice(data, chosen_label, unknown_animals)
-    if not filtered:
-        print(f"No animals found with skin_type = '{chosen_label}'.")
+    if not data:
+        cards_html = (
+            f"<h2 class='subheading empty-message'>"
+            f"The animal “{esc(animal)}” doesn't exist.</h2>"
+        )
+        create_new_html(cards_html, animal, 0)
         return
 
-    cards_html = "".join(serialize_animal(a) for a in filtered)
-    create_new_html(cards_html, chosen_label, len(filtered))
+    cards_html = "".join(serialize_animal(a) for a in data)
+    create_new_html(cards_html, animal, len(data))
 
-    print(f"\nFound {len(filtered)} animals matching the selected criteria.")
-    print(f"Generated {OUTPUT_FILE} with skin_type = '{chosen_label}'.")
+    print("Website was successfully generated to the file animals.html.")
 
 
 if __name__ == "__main__":
